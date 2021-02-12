@@ -1,0 +1,51 @@
+---
+title: "Analysis"
+author: "gwilly4280"
+date: "11/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Import file
+
+```{r}
+# Load dplyr for data wrangling
+library(dplyr)
+
+# Read Data from file
+mySeq <- read.csv("Sequences.csv")
+```
+
+
+### Wrangle sequences
+```{r}
+# Build table 
+seq_table <- mySeq %>% 
+   # Replace previous columns with only those defined here
+   transmute("Sequence ID" = gsub(".*(HQ\\d+.\\d).*", "\\1\\2", Name),
+             Sequence,
+             # Calculate Number of A, T, G, C bases
+             A_count = nchar(gsub("[^A]", "", Sequence)),
+             T_count = nchar(gsub("[^T]", "", Sequence)),
+             G_count = nchar(gsub("[^G]", "", Sequence)),
+             C_count = nchar(gsub("[^C]", "", Sequence)),
+             # Calculate GC Content
+             "GC Content" = paste(round((G_count+C_count)/nchar(Sequence)*100,digits=2),"%",sep=""))
+
+# Print Table to display all calculated values
+print(seq_table)
+```
+
+To improve quality of output for the GC content, we'll display as a neater table using knitr function
+```{r}
+# Use dplyr to select only "Sequence ID" & "GC Content" variables
+knitr::kable(seq_table %>% select("Sequence ID", "GC Content"))
+```
+
+For more information on the Lyme disease causing bacteria, *Borrelia burgdorferi*, check the wikipedia article: [Wikipedia.org/wiki/Borrelia_burgdorferi](https://en.wikipedia.org/wiki/Borrelia_burgdorferi)
+   
+![Borrelia burgdorferi](https://www.bayarealyme.org/wp-content/uploads/2014/08/borrelia-burgdorferi.jpg)
+
